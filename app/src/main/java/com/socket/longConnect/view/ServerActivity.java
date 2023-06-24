@@ -13,7 +13,7 @@ import java.net.SocketException;
 public class ServerActivity extends AppCompatActivity {
 
     private String ip = "127.0.0.1";
-    private String port = "8888";
+    private int port = 8888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class ServerActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             ip = bundle.getString("ip");
-            port = bundle.getString("port");
+            port = bundle.getInt("port");
         }
 
         TextView txtlocalip = findViewById(R.id.localip);
