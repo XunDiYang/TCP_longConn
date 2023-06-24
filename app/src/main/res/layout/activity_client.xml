@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.ClientActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50px"
+        android:layout_marginRight="50px"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50px"
+            android:text="客户端"
+            android:textSize="65px" />
+
+        <TextView
+            android:id="@+id/localip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="客户端ip"
+            android:textColor="@color/black"
+            android:textSize="50px" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50px"
+        android:layout_marginTop="400px"
+        android:layout_marginRight="50px"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/sndMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入需要发送的内容"
+            android:textSize="50px" />
+
+        <Button
+            android:id="@+id/btnSndMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="发送"
+            android:textSize="80px" />
+
+        <TextView
+            android:id="@+id/rtnMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="200px"
+            android:hint="服务器返回内容"
+            android:textColor="@color/black"
+            android:textSize="50px" />
+
+    </LinearLayout>
+
+</LinearLayout>
