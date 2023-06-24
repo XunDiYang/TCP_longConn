@@ -28,6 +28,7 @@ public class ServerActivity extends AppCompatActivity {
         TextView txtlocalip = findViewById(R.id.localip);
         txtlocalip.setText(toString());
 
+         // new NettyServerDemo(port).start();
 
     }
 
