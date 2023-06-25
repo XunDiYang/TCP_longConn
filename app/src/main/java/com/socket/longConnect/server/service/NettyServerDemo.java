@@ -57,12 +57,12 @@ public class NettyServerDemo extends Service {
         NettyServerDemo.handler = handler;
     }
 
-    private NettyServerBootStrap nettyServerBootStrap = new NettyServerBootStrap();
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
+
+    private NettyServerBootStrap nettyServerBootStrap = new NettyServerBootStrap();
 
     @Nullable
     @Override
