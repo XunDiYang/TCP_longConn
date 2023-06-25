@@ -11,16 +11,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication" >
         <activity
-            android:name=".view.ServerStartActivity"
+            android:name=".server.view.ServerStartActivity"
             android:exported="true" />
         <activity
-            android:name=".view.ClientStartActivity"
+            android:name=".client.view.ClientStartActivity"
             android:exported="true" />
         <activity
-            android:name=".view.ServerActivity"
+            android:name=".server.view.ServerActivity"
             android:exported="true" />
         <activity
-            android:name=".view.ClientActivity"
+            android:name=".client.view.ClientActivity"
             android:exported="true" />
         <activity
             android:name=".view.MainActivity"

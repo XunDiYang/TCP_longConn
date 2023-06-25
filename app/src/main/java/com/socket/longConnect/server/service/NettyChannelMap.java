@@ -1,3 +1,10 @@
+package com.socket.longConnect.server.service;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import io.netty.channel.Channel;
+
 public class NettyChannelMap {
     private static Map<String, Channel> map = new ConcurrentHashMap<>();
 

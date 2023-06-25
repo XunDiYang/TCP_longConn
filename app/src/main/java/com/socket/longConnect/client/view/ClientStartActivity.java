@@ -1,4 +1,4 @@
-package com.socket.longConnect.view;
+package com.socket.longConnect.client.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,15 +13,15 @@ import com.socket.longConnect.utils.NetUtils;
 
 import java.net.SocketException;
 
-public class ClientActivity extends AppCompatActivity {
+public class ClientStartActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_client);
+        setContentView(R.layout.activity_client_start);
 
         TextView txtlocalip = findViewById(R.id.localip);
-        String localip = null;
+        String localip;
         try {
             localip = NetUtils.getInnetIp();
             txtlocalip.setText(localip);
@@ -29,5 +29,12 @@ public class ClientActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+
+
+        Button btnConnServer = findViewById(R.id.btnConnServer);
+        btnConnServer.setOnClickListener(v -> {
+            Intent intent = new Intent(ClientStartActivity.this,ClientActivity.class);
+            startActivity(intent);
+        });
     }
 }

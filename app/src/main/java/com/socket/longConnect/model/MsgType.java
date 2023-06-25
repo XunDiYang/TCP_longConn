@@ -1,3 +1,5 @@
+package com.socket.longConnect.model;
+
 public interface MsgType {
     int CONNECTING = 1;
 

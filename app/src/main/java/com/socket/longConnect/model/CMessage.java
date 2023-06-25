@@ -1,3 +1,10 @@
+package com.socket.longConnect.model;
+
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
 public class CMessage implements Serializable {
     @SerializedName("from")
     private String from;

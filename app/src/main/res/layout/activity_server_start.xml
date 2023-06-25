@@ -4,22 +4,22 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    tools:context=".view.ServerStartActivity">
+    tools:context=".server.view.ServerStartActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="50px"
+            android:layout_marginTop="25dp"
             android:text="服务器端"
-            android:textSize="65px" />
+            android:textSize="30sp" />
 
         <TextView
             android:id="@+id/localip"
@@ -27,15 +27,15 @@
             android:layout_height="wrap_content"
             android:hint="服务器端ip"
             android:textColor="@color/black"
-            android:textSize="50px" />
+            android:textSize="25sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="500px"
-        android:layout_marginLeft = "50px"
-        android:layout_marginRight = "50px"
+        android:layout_marginTop="250dp"
+        android:layout_marginLeft = "25dp"
+        android:layout_marginRight = "25dp"
         android:orientation="vertical">
 
         <EditText
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="启动服务器"
-            android:textSize="80px"
+            android:textSize="40sp"
             android:id = "@+id/btnStartServer" />
 
     </LinearLayout>

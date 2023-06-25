@@ -1,4 +1,4 @@
-package com.socket.longConnect.view;
+package com.socket.longConnect.server.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.socket.longConnect.R;
-import com.socket.longConnect.server.NettyServerDemo;
+import com.socket.longConnect.server.service.NettyServerDemo;
 import com.socket.longConnect.utils.NetUtils;
 
 import java.net.SocketException;
@@ -38,21 +38,18 @@ public class ServerStartActivity extends AppCompatActivity {
 
         Button btnStartServer = findViewById(R.id.btnStartServer);
         String ip = localip;
-        btnStartServer.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
+        btnStartServer.setOnClickListener(v -> {
 //                Intent intent = new Intent(ServerStartActivity.this,ServerActivity.class);
 //                startActivity(intent);
-                if(TextUtils.isEmpty(txtlocalip.getText())){
-                    Toast.makeText(ServerStartActivity.this,"请键入正确的ip地址",Toast.LENGTH_LONG).show();
-                    return;
-                }
-                int serverPort = Integer.parseInt(txtServerPort.getText().toString());
-                Intent intent = new Intent(ServerStartActivity.this,ServerActivity.class);
-                intent.putExtra("ip", ip);
-                intent.putExtra("port",serverPort);
-                startActivity(intent);
+            if(TextUtils.isEmpty(txtlocalip.getText())){
+                Toast.makeText(ServerStartActivity.this,"请键入正确的ip地址",Toast.LENGTH_LONG).show();
+                return;
             }
+            int serverPort = Integer.parseInt(txtServerPort.getText().toString());
+            Intent intent = new Intent(ServerStartActivity.this,ServerActivity.class);
+            intent.putExtra("ip", ip);
+            intent.putExtra("port",serverPort);
+            startActivity(intent);
         });
     }
 }

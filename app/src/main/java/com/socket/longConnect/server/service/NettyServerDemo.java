@@ -1,8 +1,19 @@
-package com.socket.longConnect.server;
+package com.socket.longConnect.server.service;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.Handler;
+import android.os.IBinder;
+
+import androidx.annotation.Nullable;
+
+import com.socket.longConnect.model.ConnStatus;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -10,7 +21,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
-public class NettyServerDemo extends Service{
+public class NettyServerDemo extends Service {
     public static String ip = "127.0.0.1";
     public static int port = 8888;
     public static Handler handler;
@@ -59,7 +70,7 @@ public class NettyServerDemo extends Service{
         return nettyServerBootStrap;
     }
 
-    public static class NettyServerBootStrap extends Binder{
+    public static class NettyServerBootStrap extends Binder {
         public void connect() {
             EventLoopGroup bossGroup = new NioEventLoopGroup();
             EventLoopGroup workerGroup = new NioEventLoopGroup();

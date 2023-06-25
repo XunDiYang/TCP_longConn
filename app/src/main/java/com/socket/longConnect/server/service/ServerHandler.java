@@ -1,6 +1,17 @@
-package com.socket.longConnect.server;
+package com.socket.longConnect.server.service;
 
+import android.os.Bundle;
+import android.os.Message;
+
+import com.google.gson.Gson;
+import com.socket.longConnect.model.CMessage;
+import com.socket.longConnect.model.MsgType;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter {
   @Override
