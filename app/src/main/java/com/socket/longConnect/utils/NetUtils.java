@@ -13,6 +13,7 @@ public class NetUtils {
         while (networkInterfaces != null && networkInterfaces.hasMoreElements()){
             NetworkInterface ni = networkInterfaces.nextElement();
             Enumeration<InetAddress> addresses = ni.getInetAddresses();
+            
             while(addresses.hasMoreElements()){
                 InetAddress address = addresses.nextElement();
                 if(address.isSiteLocalAddress() && !address.isLoopbackAddress() && address.getHostAddress().indexOf(":")==-1){
