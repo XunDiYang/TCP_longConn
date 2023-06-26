@@ -26,14 +26,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="进入服务器页面" />
+            android:text="进入服务器页面"
+            android:textSize="30sp"/>
 
         <Button
             android:id="@+id/btnClient"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="进入客户端页面" />
+            android:text="进入客户端页面"
+            android:textSize="30sp"/>
     </LinearLayout>
 
 
