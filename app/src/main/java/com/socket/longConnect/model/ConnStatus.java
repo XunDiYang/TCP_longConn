@@ -1,6 +1,7 @@
 package com.socket.longConnect.model;
 
-public enum ConnStatus {
+public enum ConnState {
     CONNECTING,
     UNCONNED,
+    CONNECTED,
 }
