@@ -31,6 +31,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".server.service.NettyServerDemo"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <service android:name=".client.service.NettyClientDemo"
+            android:enabled="true"
+            android:exported="true">
+        </service>
     </application>
 
 </manifest>
