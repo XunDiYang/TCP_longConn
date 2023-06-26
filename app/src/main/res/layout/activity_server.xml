@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:hint="服务器端ip"
             android:textColor="@color/black"
-            android:textSize="25sp" />
+            android:textSize="15sp" />
     </LinearLayout>
 
 
@@ -42,16 +42,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/server_ip_port"
-            android:textColor="@color/black"
-            android:textSize="25sp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/rcvMsg"
             android:textColor="@color/black"
-            android:textSize="25sp" />
+            android:textSize="15sp" />
 
     </LinearLayout>
 
