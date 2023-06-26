@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.socket.longConnect"
         minSdk 29
-        targetSdk 33
+        targetSdk 32
         versionCode 1
         versionName "1.0"
 
