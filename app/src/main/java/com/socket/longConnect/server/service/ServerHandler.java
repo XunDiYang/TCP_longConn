@@ -28,18 +28,16 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         Gson gson = new Gson();
         CMessage recvCMsg = gson.fromJson((String) msg, CMessage.class);
 
-        Message message = new Message();
-        Bundle bundle = new Bundle();
-        bundle.putInt("type", recvCMsg.getType());
-        bundle.putString("clientIp", recvCMsg.getFrom());
-        bundle.putString("msg", recvCMsg.getMsg());
-        message.setData(bundle);
-        serverService.handler.sendMessage(message);
-
         CMessage sendCMsg = new CMessage();
         sendCMsg.setFrom(serverService.ip);
         sendCMsg.setTo(recvCMsg.getFrom());
         sendCMsg.setCode(200);
+
+        if (serverService.connMsgCallback != null){
+            serverService.getHandler().post(()->{
+                serverService.connMsgCallback.onEvent(recvCMsg.getCode(),recvCMsg.getMsg(),null);
+            });
+        }
 
         if (recvCMsg.getType() == MsgType.CONNECT) {
             sendCMsg.setType(MsgType.CONNECT);

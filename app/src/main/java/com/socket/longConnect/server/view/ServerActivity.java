@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.socket.longConnect.R;
+import com.socket.longConnect.model.CMessage;
+import com.socket.longConnect.model.Callback;
 import com.socket.longConnect.model.MsgType;
 import com.socket.longConnect.server.service.NettyServerDemo;
 
@@ -35,20 +37,30 @@ public class ServerActivity extends AppCompatActivity {
         TextView txtlocalip = findViewById(R.id.localip);
         txtlocalip.setText(toString());
 
+        serverService.connect(connMsgCallback);
     }
 
-    private Handler msgHandler = new Handler(message -> {
-        int msgType = message.getData().getInt("type");
-        String clientIp = message.getData().getString("clientIp");
-        String rcvMsg = message.getData().getString("msg");
-        if (msgType == MsgType.CONNECT) {
-            Toast.makeText(ServerActivity.this, clientIp + " 连接成功", Toast.LENGTH_LONG).show();
-        } else if (msgType == MsgType.TEXT && !TextUtils.isEmpty(rcvMsg)) {
-            TextView txtRcvMsg = findViewById(R.id.rcvMsg);
-            txtRcvMsg.setText(txtRcvMsg.getText().toString() + "\n\n收到消息来自于：" + clientIp + "\n消息内容：" + rcvMsg);
+    private Callback<CMessage> connMsgCallback = new Callback<CMessage>() {
+        @Override
+        public void onEvent(int code, String msg, CMessage cMessage) {
+            if (code == 100){
+                Toast.makeText(ServerActivity.this, "服务器启动成功", Toast.LENGTH_LONG).show();
+            }
+            else if (code == 200){
+                if (cMessage.getType() == MsgType.CONNECT) {
+                    Toast.makeText(ServerActivity.this, cMessage.getFrom() + " 连接成功", Toast.LENGTH_LONG).show();
+                } else if (cMessage.getType() == MsgType.TEXT && !TextUtils.isEmpty(cMessage.getMsg())) {
+                    TextView txtRcvMsg = findViewById(R.id.rcvMsg);
+                    txtRcvMsg.setText(txtRcvMsg.getText().toString() + "\n\n收到消息来自于：" + cMessage.getFrom() + "\n消息内容：" + cMessage.getMsg());
+                }
+                finish();
+            }
+            else {
+                Toast.makeText(ServerActivity.this, "服务器启动失败", Toast.LENGTH_LONG).show();
+
+            }
         }
-        return false;
-    });
+    };
 
     @NonNull
     @Override

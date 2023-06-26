@@ -64,16 +64,20 @@ public class NettyClientDemo extends Service {
         NettyClientDemo.serverPort = serverPort;
     }
 
-    public static ConnState getStatus() {
+    public static ConnState getState() {
         return state;
     }
 
-    public static void setStatus(ConnState state) {
+    public static void setState(ConnState state) {
         NettyClientDemo.state = state;
     }
 
     public void setRecvMsgCallback(Callback<CMessage> recvMsgCallback) {
         this.recvMsgCallback = recvMsgCallback;
+    }
+
+    public static Handler getHandler() {
+        return handler;
     }
 
     public static NettyClientDemo getClientService() {

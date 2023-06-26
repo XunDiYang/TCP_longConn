@@ -35,8 +35,6 @@ public class NettyServerDemo extends Service {
     public static int port = 8888;
     private static Handler handler = new Handler();
 
-    public Callback<CMessage> recvMsgCallback;
-
     public Callback<CMessage> connMsgCallback;
 
     public static NettyServerDemo serverService = new NettyServerDemo();
@@ -108,7 +106,7 @@ public class NettyServerDemo extends Service {
                     .addListener((ChannelFutureListener) future -> {
                         if (future.isSuccess()) {
                             if (callback != null) {
-                                handler.post(() -> callback.onEvent(200, "connect success", null));
+                                handler.post(() -> callback.onEvent(100, "Server port " + String.valueOf(port) + ": START!", null));
                             }
                         } else {
 //                            // 这里一定要关闭，不然一直重试会引发OOM

@@ -54,7 +54,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             if (recvCMsg.getCode() == 200){
                 clientService.updateState(ConnState.CONNECTED);
                 if (clientService.connMsgCallback != null){
-                    clientService.handler.post(()->{
+                    clientService.getHandler().post(()->{
                         clientService.connMsgCallback.onEvent(200,"connect success",null);
                         clientService.connMsgCallback = null;
                     });
@@ -63,7 +63,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 clientService.closeChannel();
                 clientService.updateState(ConnState.UNCONNED);
                 if (clientService.connMsgCallback != null){
-                    clientService.handler.post(()->{
+                    clientService.getHandler().post(()->{
                         clientService.connMsgCallback.onEvent(recvCMsg.getCode(),recvCMsg.getMsg(),null);
                         clientService.connMsgCallback = null;
                     });

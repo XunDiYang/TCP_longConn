@@ -53,28 +53,12 @@ public class ServerStartActivity extends AppCompatActivity {
                 NettyServerDemo serverService = NettyServerDemo.getServerService();
                 serverService.setIp(ip);
                 serverService.setPort(serverPort);
-                try {
-                    serverService.connect(connMsgCallback);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                Intent intent = new Intent(ServerStartActivity.this, ServerActivity.class);
+                startActivity(intent);
             }
 
         });
     }
 
-    private Callback<CMessage> connMsgCallback = new Callback<CMessage>() {
-        @Override
-        public void onEvent(int code, String msg, CMessage cMessage) {
-            if (code == 200){
-                Toast.makeText(ServerStartActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(ServerStartActivity.this, ServerActivity.class);
-                startActivity(intent);
-                finish();
-            }
-            else {
-                Toast.makeText(ServerStartActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
+
 }
