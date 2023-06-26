@@ -12,6 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.socket.longConnect.R;
+import com.socket.longConnect.client.view.ClientActivity;
+import com.socket.longConnect.client.view.ClientStartActivity;
+import com.socket.longConnect.model.CMessage;
+import com.socket.longConnect.model.Callback;
 import com.socket.longConnect.server.service.NettyServerDemo;
 import com.socket.longConnect.utils.NetUtils;
 
@@ -41,15 +45,36 @@ public class ServerStartActivity extends AppCompatActivity {
         btnStartServer.setOnClickListener(v -> {
 //                Intent intent = new Intent(ServerStartActivity.this,ServerActivity.class);
 //                startActivity(intent);
-            if(TextUtils.isEmpty(txtlocalip.getText())){
-                Toast.makeText(ServerStartActivity.this,"请键入正确的ip地址",Toast.LENGTH_LONG).show();
-                return;
+            if (TextUtils.isEmpty(txtServerPort.getText())) {
+                Toast.makeText(ServerStartActivity.this, "请键入正确的端口号", Toast.LENGTH_LONG).show();
+            } else {
+                int serverPort = Integer.parseInt(txtServerPort.getText().toString());
+                startService(new Intent(ServerStartActivity.this, NettyServerDemo.class));
+                NettyServerDemo serverService = NettyServerDemo.getServerService();
+                serverService.setIp(ip);
+                serverService.setPort(serverPort);
+                try {
+                    serverService.connect(connMsgCallback);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            int serverPort = Integer.parseInt(txtServerPort.getText().toString());
-            Intent intent = new Intent(ServerStartActivity.this,ServerActivity.class);
-            intent.putExtra("ip", ip);
-            intent.putExtra("port",serverPort);
-            startActivity(intent);
+
         });
     }
+
+    private Callback<CMessage> connMsgCallback = new Callback<CMessage>() {
+        @Override
+        public void onEvent(int code, String msg, CMessage cMessage) {
+            if (code == 200){
+                Toast.makeText(ServerStartActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(ServerStartActivity.this, ServerActivity.class);
+                startActivity(intent);
+                finish();
+            }
+            else {
+                Toast.makeText(ServerStartActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 }
