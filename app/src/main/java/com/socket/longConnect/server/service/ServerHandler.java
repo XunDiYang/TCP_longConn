@@ -14,7 +14,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter {
-  @Override
+    private NettyServerDemo serverService = NettyServerDemo.getServerService();
+
+    @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         NettyChannelMap.remove(ctx.channel());
@@ -32,15 +34,15 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         bundle.putString("clientIp", recvCMsg.getFrom());
         bundle.putString("msg", recvCMsg.getMsg());
         message.setData(bundle);
-        NettyServerDemo.handler.sendMessage(message);
+        serverService.handler.sendMessage(message);
 
         CMessage sendCMsg = new CMessage();
-        sendCMsg.setFrom(NettyServerDemo.ip);
+        sendCMsg.setFrom(serverService.ip);
         sendCMsg.setTo(recvCMsg.getFrom());
         sendCMsg.setCode(200);
 
-        if (recvCMsg.getType() == MsgType.CONNECTING) {
-            sendCMsg.setType(MsgType.CONNECT_SUCCESS);
+        if (recvCMsg.getType() == MsgType.CONNECT) {
+            sendCMsg.setType(MsgType.CONNECT);
             ctx.channel().writeAndFlush(sendCMsg.toJson());
             NettyChannelMap.add(sendCMsg.getTo(), ctx.channel());
         } else if (recvCMsg.getType() == MsgType.TEXT) {
@@ -54,7 +56,12 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                     }
                 });
             }
-
+        } else if (recvCMsg.getType() == MsgType.PING) {
+            Channel channel = NettyChannelMap.get(recvCMsg.getFrom());
+            if (channel != null) {
+                sendCMsg.setType(MsgType.PING);
+                channel.writeAndFlush(sendCMsg.toJson());
+            }
         }
 
         ReferenceCountUtil.release(msg);
