@@ -8,10 +8,16 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
-import com.socket.longConnect.model.ConnStatus;
+import com.socket.longConnect.client.service.NettyClientDemo;
+import com.socket.longConnect.model.CMessage;
+import com.socket.longConnect.model.Callback;
+import com.socket.longConnect.model.ConnState;
+
+import java.net.InetSocketAddress;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -19,14 +25,21 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 public class NettyServerDemo extends Service {
     public static String ip = "127.0.0.1";
     public static int port = 8888;
-    public static Handler handler;
-    public static ConnStatus status = ConnStatus.UNCONNED;
+    private static Handler handler = new Handler();
 
+    public Callback<CMessage> recvMsgCallback;
+
+    public Callback<CMessage> connMsgCallback;
+
+    public static NettyServerDemo serverService = new NettyServerDemo();
 
     @Override
     public void onCreate() {
@@ -38,7 +51,7 @@ public class NettyServerDemo extends Service {
     }
 
     public static void setIp(String ip) {
-        NettyServerDemo.ip = ip;
+        serverService.ip = ip;
     }
 
     public static int getPort() {
@@ -46,7 +59,7 @@ public class NettyServerDemo extends Service {
     }
 
     public static void setPort(int port) {
-        NettyServerDemo.port = port;
+        serverService.port = port;
     }
 
     public static Handler getHandler() {
@@ -54,7 +67,11 @@ public class NettyServerDemo extends Service {
     }
 
     public static void setHandler(Handler handler) {
-        NettyServerDemo.handler = handler;
+        serverService.handler = handler;
+    }
+
+    public static NettyServerDemo getServerService() {
+        return serverService;
     }
 
     @Override
@@ -62,42 +79,55 @@ public class NettyServerDemo extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private NettyServerBootStrap nettyServerBootStrap = new NettyServerBootStrap();
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return nettyServerBootStrap;
+        return null;
     }
 
-    public static class NettyServerBootStrap extends Binder {
-        public void connect() {
-            EventLoopGroup bossGroup = new NioEventLoopGroup();
-            EventLoopGroup workerGroup = new NioEventLoopGroup();
-            try {
-                ServerBootstrap serverBootstrap = new ServerBootstrap();
-                serverBootstrap
-                        .group(bossGroup, workerGroup)
-                        .channel(NioServerSocketChannel.class)
-                        .childOption(ChannelOption.SO_KEEPALIVE,true)
-                        .childHandler(new ChannelInitializer<SocketChannel>() {
-                            @Override
-                            protected void initChannel(SocketChannel ch) throws Exception {
-                                ch.pipeline().addLast(new LineBasedFrameDecoder(1024));
-                                ch.pipeline().addLast(new StringDecoder());
-                                ch.pipeline().addLast(new ServerHandler());
+    public void connect(@Nullable Callback<CMessage> callback) {
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap
+                    .group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .option(ChannelOption.TCP_NODELAY, true) // 不延迟，直接发送
+                    .childOption(ChannelOption.SO_KEEPALIVE, true) // 保持长连接状态
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(new ObjectEncoder());
+                            ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)));
+                            ch.pipeline().addLast(new ServerHandler());
+                        }
+                    });
+            serverBootstrap.bind(NettyClientDemo.getServerPort())
+                    .addListener((ChannelFutureListener) future -> {
+                        if (future.isSuccess()) {
+                            if (callback != null) {
+                                handler.post(() -> callback.onEvent(200, "connect success", null));
                             }
-                        });
-                ChannelFuture f = serverBootstrap.bind(port).sync();
-                System.out.println("ServerHandler started on " + port);
-                f.channel().closeFuture().sync();
-            } catch (Exception e) {
-                e.getStackTrace();
-            } finally {
-                workerGroup.shutdownGracefully();
-                bossGroup.shutdownGracefully();
-            }
+                        } else {
+//                            // 这里一定要关闭，不然一直重试会引发OOM
+//                            future.channel().close();
+                            if (callback != null) {
+                                handler.post(() -> callback.onEvent(400, "failed", null));
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            e.getStackTrace();
+        } finally {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
         }
+    }
+
+    public void recvMsg(){
+
     }
 
 }
