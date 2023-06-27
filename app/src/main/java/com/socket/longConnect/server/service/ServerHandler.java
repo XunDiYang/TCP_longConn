@@ -2,6 +2,7 @@ package com.socket.longConnect.server.service;
 
 import android.os.Bundle;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.socket.longConnect.model.CMessage;
@@ -15,6 +16,13 @@ import io.netty.util.ReferenceCountUtil;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter {
     private NettyServerDemo serverService = NettyServerDemo.getServerService();
+    String TAG = "ServerHandler";
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        Log.d(TAG, "有客户端连接过来：" + ctx.toString());
+    }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -28,14 +36,16 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         Gson gson = new Gson();
         CMessage recvCMsg = gson.fromJson((String) msg, CMessage.class);
 
-        CMessage sendCMsg = new CMessage();
-        sendCMsg.setFrom(serverService.ip);
-        sendCMsg.setTo(recvCMsg.getFrom());
-        sendCMsg.setCode(200);
+        CMessage sendCMsg = new CMessage(
+                serverService.ip,
+                recvCMsg.getFrom(),
+                200,
+                MsgType.CONNECT,
+                "connected");
 
         if (serverService.connMsgCallback != null){
             serverService.getHandler().post(()->{
-                serverService.connMsgCallback.onEvent(recvCMsg.getCode(),recvCMsg.getMsg(),null);
+                serverService.connMsgCallback.onEvent(recvCMsg.getFrom(), 200,recvCMsg.getType(),recvCMsg.getMsg(),null);
             });
         }
 
