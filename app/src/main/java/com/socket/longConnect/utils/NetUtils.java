@@ -18,7 +18,7 @@ public class NetUtils {
                 InetAddress address = addresses.nextElement();
                 if(address.isSiteLocalAddress() && !address.isLoopbackAddress() && address.getHostAddress().indexOf(":")==-1){
                     String hostAddress = address.getHostAddress();
-                    if(hostAddress.contains("192.")){
+                    if(hostAddress.contains("192.") || hostAddress.contains("10.36.")){
 //                        很怪，排除ipv6和127.*.*.*，为什么必须是192.*.*.*?
                         return hostAddress;
                     }
