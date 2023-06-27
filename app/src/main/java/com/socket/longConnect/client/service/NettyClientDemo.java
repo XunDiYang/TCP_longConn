@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.socket.longConnect.model.CMessage;
 import com.socket.longConnect.model.Callback;
 import com.socket.longConnect.model.ConnState;
+import com.socket.longConnect.model.MsgType;
 
 import java.net.InetSocketAddress;
 
@@ -38,7 +39,7 @@ public class NettyClientDemo extends Service {
 
     public Callback<CMessage> recvMsgCallback;
     public Callback<CMessage> connMsgCallback;
-    private static SocketChannel socketChannel;
+    public static SocketChannel socketChannel;
 
     public static String getLocalIp() {
         return localIp;
@@ -100,53 +101,83 @@ public class NettyClientDemo extends Service {
         return null;
     }
 
-    public void connect(@Nullable Callback<CMessage> callback) throws InterruptedException {
-        if (state == ConnState.CONNECTED) {
+    private void connect(@Nullable Callback<Void> callback) throws InterruptedException {
+        if (state == ConnState.CONNECTED || state == ConnState.CONNECTING) {
             return;
         }
 
         updateState(ConnState.CONNECTING);
 
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
-        Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(workerGroup);
-        bootstrap.channel(NioSocketChannel.class);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.option(ChannelOption.TCP_NODELAY, true);
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new IdleStateHandler(0, 30, 0));
-                ch.pipeline().addLast(new ObjectEncoder());
-                ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)));
-                ch.pipeline().addLast(new ClientHandler());
-            }
-        });
-//        开启客户端
-        bootstrap.connect(new InetSocketAddress(clientService.getServerIp(), clientService.getServerPort()))
-                .addListener((ChannelFutureListener) future -> {
-                    if (future.isSuccess()) {
-                        socketChannel = (SocketChannel) future.channel();
-                        connMsgCallback = callback;
-                        if (callback != null) {
-                            handler.post(() -> callback.onEvent(200, "connect success", null));
-                        }
-                    } else {
-                        closeChannel();
-                        updateState(ConnState.UNCONNED);
-                        // 这里一定要关闭，不然一直重试会引发OOM
-                        future.channel().close();
-                        workerGroup.shutdownGracefully();
-                        if (callback != null) {
-                            handler.post(() -> callback.onEvent(400, "failed", null));
-                        }
+        new Bootstrap()
+                .channel(NioSocketChannel.class)
+                .group(workerGroup)
+//                .option(ChannelOption.SO_KEEPALIVE, true)
+//                .option(ChannelOption.TCP_NODELAY, true)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+//                        ch.pipeline().addLast(new IdleStateHandler(0, 30, 0));
+                        ch.pipeline().addLast(new ObjectEncoder());
+                        ch.pipeline().addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(null)));
+                        ch.pipeline().addLast(new ClientHandler());
                     }
-                });
+                })
+                .connect(new InetSocketAddress(clientService.getServerIp(), clientService.getServerPort())).sync();
+//                .addListener((ChannelFutureListener) future -> {
+//                    if (future.isSuccess()) {
+//                        socketChannel = (SocketChannel) future.channel();
+//                        callback.onEvent(serverIp,200, MsgType.CONNECT,"connect success", null);
+//                    } else {
+//                        Throwable cause = future.cause();
+//                        cause.printStackTrace();
+//                        closeChannel();
+//                        // 这里一定要关闭，不然一直重试会引发OOM
+//                        future.channel().close();
+//                        workerGroup.shutdownGracefully();
+//                        callback.onEvent(serverIp,400, MsgType.CONNECT,"connect failed", null);
+//                    }
+//                });
 
     }
 
-    public void sendMsg(CMessage message, Callback<Void> callback) {
-
+    public void sendMsg(CMessage message, Callback<Void> callback) throws InterruptedException {
+        if (state == ConnState.CONNECTED) {
+            socketChannel.writeAndFlush(message.toJson())
+                    .addListener((ChannelFutureListener) future -> {
+                        if (callback == null) {
+                            return;
+                        }
+                        if (future.isSuccess()) {
+                            handler.post(() -> callback.onEvent(serverIp,200, MsgType.TEXT,"success", null));
+                        } else {
+                            handler.post(() -> callback.onEvent(serverIp,400, MsgType.TEXT,"failed", null));
+                        }
+                    });
+        } else {
+            connect((from,code, type, msg, aVoid) -> {
+                if (code == 200) {
+                    socketChannel.writeAndFlush(message.toJson())
+                            .addListener((ChannelFutureListener) future -> {
+                                if (future.isSuccess()) {
+                                    callback.onEvent(from,200, MsgType.CONNECT,"success", null);
+                                } else {
+                                    closeChannel();
+                                    updateState(ConnState.UNCONNED);
+                                    if (callback != null) {
+                                        handler.post(() -> callback.onEvent(from,400,MsgType.CONNECT, "failed", null));
+                                    }
+                                }
+                            });
+                } else {
+                    closeChannel();
+                    updateState(ConnState.UNCONNED);
+                    if (callback != null) {
+                        handler.post(() -> callback.onEvent(from,400,MsgType.CONNECT, "failed", null));
+                    }
+                }
+            });
+        }
     }
 
     public static void updateState(ConnState state) {
@@ -162,7 +193,23 @@ public class NettyClientDemo extends Service {
         }
     }
 
-    public static void retryConn() {
-
+    public void retryConn(long mills) {
+//        CMessage connMsg = new CMessage(
+//                getLocalIp(),
+//                getServerIp(),
+//                200,
+//                MsgType.CONNECT,
+//                "connecting");
+//        handler.postDelayed(() -> {
+//            try {
+//                connect((code, msg, aVoid) -> {
+//                    if (code != 200) {
+//                        retryConn(mills);
+//                    }
+//                });
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }, mills);
     }
 }
