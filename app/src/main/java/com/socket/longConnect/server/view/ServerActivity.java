@@ -40,18 +40,18 @@ public class ServerActivity extends AppCompatActivity {
         serverService.connect(connMsgCallback);
     }
 
-    private Callback<CMessage> connMsgCallback = new Callback<CMessage>() {
+    private Callback<Void> connMsgCallback = new Callback<Void>() {
         @Override
-        public void onEvent(int code, String msg, CMessage cMessage) {
+        public void onEvent(String from, int code, int type, String msg, Void unused) {
             if (code == 100){
                 Toast.makeText(ServerActivity.this, "服务器启动成功", Toast.LENGTH_LONG).show();
             }
             else if (code == 200){
-                if (cMessage.getType() == MsgType.CONNECT) {
-                    Toast.makeText(ServerActivity.this, cMessage.getFrom() + " 连接成功", Toast.LENGTH_LONG).show();
-                } else if (cMessage.getType() == MsgType.TEXT && !TextUtils.isEmpty(cMessage.getMsg())) {
+                if (type == MsgType.CONNECT) {
+                    Toast.makeText(ServerActivity.this, from + " 连接成功", Toast.LENGTH_LONG).show();
+                } else if (type == MsgType.TEXT && !TextUtils.isEmpty(msg)) {
                     TextView txtRcvMsg = findViewById(R.id.rcvMsg);
-                    txtRcvMsg.setText(txtRcvMsg.getText().toString() + "\n\n收到消息来自于：" + cMessage.getFrom() + "\n消息内容：" + cMessage.getMsg());
+                    txtRcvMsg.setText(txtRcvMsg.getText().toString() + "\n\n收到消息来自于：" + from + "\n消息内容：" + msg);
                 }
                 finish();
             }
