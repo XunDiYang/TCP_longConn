@@ -5,13 +5,14 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.socket.longConnect.client.service.NettyClientDemo;
 import com.socket.longConnect.model.CMessage;
 import com.socket.longConnect.model.Callback;
 import com.socket.longConnect.model.ConnState;
+import com.socket.longConnect.model.MsgType;
 
 import java.net.InetSocketAddress;
 
@@ -83,7 +84,7 @@ public class NettyServerDemo extends Service {
         return null;
     }
 
-    public void connect(@Nullable Callback<CMessage> callback) {
+    public void connect(@Nullable Callback<Void> callback) {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -91,9 +92,9 @@ public class NettyServerDemo extends Service {
             serverBootstrap
                     .group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .option(ChannelOption.TCP_NODELAY, true) // 不延迟，直接发送
-                    .childOption(ChannelOption.SO_KEEPALIVE, true) // 保持长连接状态
+//                    .option(ChannelOption.SO_BACKLOG, 128)
+//                    .option(ChannelOption.TCP_NODELAY, true) // 不延迟，直接发送
+//                    .childOption(ChannelOption.SO_KEEPALIVE, true) // 保持长连接状态
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
@@ -102,20 +103,23 @@ public class NettyServerDemo extends Service {
                             ch.pipeline().addLast(new ServerHandler());
                         }
                     });
-            serverBootstrap.bind(NettyClientDemo.getServerPort())
-                    .addListener((ChannelFutureListener) future -> {
+            ChannelFuture cf = serverBootstrap.bind(serverService.port).sync();
+            cf.addListener((ChannelFutureListener) future -> {
                         if (future.isSuccess()) {
+                            Log.d("NettyServerDemo","netty server start");
                             if (callback != null) {
-                                handler.post(() -> callback.onEvent(100, "Server port " + String.valueOf(port) + ": START!", null));
+                                handler.post(() -> callback.onEvent(null,100, MsgType.CONNECT, "Server port " + String.valueOf(port) + ": START!", null));
                             }
                         } else {
 //                            // 这里一定要关闭，不然一直重试会引发OOM
 //                            future.channel().close();
+                            Log.d("NettyServerDemo","netty server start failed");
                             if (callback != null) {
-                                handler.post(() -> callback.onEvent(400, "failed", null));
+                                handler.post(() -> callback.onEvent(null, 400,  MsgType.CONNECT, "failed", null));
                             }
                         }
                     });
+            cf.channel().closeFuture();
         } catch (Exception e) {
             e.getStackTrace();
         } finally {
