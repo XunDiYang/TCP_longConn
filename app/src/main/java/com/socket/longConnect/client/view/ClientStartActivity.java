@@ -13,6 +13,7 @@ import com.socket.longConnect.R;
 import com.socket.longConnect.client.service.NettyClientDemo;
 import com.socket.longConnect.model.CMessage;
 import com.socket.longConnect.model.Callback;
+import com.socket.longConnect.model.MsgType;
 import com.socket.longConnect.utils.NetUtils;
 
 import java.net.SocketException;
@@ -57,8 +58,14 @@ public class ClientStartActivity extends AppCompatActivity {
                 clientService.setServerIp(serverIp);
                 clientService.setServerPort(serverPort);
 
+                CMessage connMsg = new CMessage(
+                        clientService.getLocalIp(),
+                        clientService.getServerIp(),
+                        200,
+                        MsgType.CONNECT,
+                        "connecting");
                 try {
-                    clientService.connect(connMsgCallback);
+                    clientService.sendMsg(connMsg,connMsgCallback);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -66,9 +73,9 @@ public class ClientStartActivity extends AppCompatActivity {
         });
     }
 
-    private Callback<CMessage> connMsgCallback = new Callback<CMessage>() {
+    private Callback<Void> connMsgCallback = new Callback<Void>() {
         @Override
-        public void onEvent(int code, String msg, CMessage cMessage) {
+        public void onEvent(String from, int code, int type, String msg, Void unused) {
             if (code == 200){
                 Toast.makeText(ClientStartActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(ClientStartActivity.this,ClientActivity.class);
@@ -79,5 +86,6 @@ public class ClientStartActivity extends AppCompatActivity {
                 Toast.makeText(ClientStartActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
             }
         }
+
     };
 }
